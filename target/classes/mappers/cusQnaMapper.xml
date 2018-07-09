@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+
+<mapper namespace="org.cg.persistence.QnaDAO" >
+
+<select id="gettime" resultType="String">
+select sysdate from dual
+</select>
+
+
+ <select id="QuestionList" parameterType="org.cg.domain.Criteria" resultType="org.cg.domain.CusQuestionVO">
+  <!-- select * from tbl_question -->  
+  
+  
+select * from (SELECT rownum rnum,cusqno, custitle, cuscontent, cuswriter, regdate,updatedate,count FROM 
+( SELECT cusqno, custitle, cusCONTENT, cuswriter, regdate,UPDATEDATE,count FROM tbl_cusquestion where cusqno>0 
+ <choose>
+  <when test='type=="t"'>
+  and (custitle like '%'|| #{keyword} ||'%')
+  </when>
+  <when test='type=="c"'>
+  and (cuscontent like '%'|| #{keyword} ||'%')
+  </when>
+  <when test='type=="w"'>
+  and (cuswriter like '%'|| #{keyword} ||'%')
+  </when>
+  </choose>
+order by cusqno desc) 
+
+ <![CDATA[
+tbl_cusquestion where rownum <= #{pageNum}) 
+
+  ]]>
+  </select>
+  
+  <select id="getTotal" parameterType="org.cg.domain.Criteria" resultType="int">
+  select count(*) from tbl_cusquestion where cusqno>0
+  <choose>
+  <when test='type=="t"'>
+  and (custitle like '%'|| #{keyword} ||'%')
+  </when>
+  <when test='type=="c"'>
+  and (cuscontent like '%'|| #{keyword} ||'%')
+  </when>
+  <when test='type=="w"'>
+  and (cuswriter like '%'|| #{keyword} ||'%')
+  </when>
+  </choose>
+  </select>
+  
+  <insert id="qinsert" parameterType="org.cg.domain.CusQuestionVO">
+  insert into tbl_cusquestion(cusqno,custitle,cusCONTENT,cuswriter) values (seq_cusquestion_cusqno.nextval,#{custitle},#{cuscontent},#{cuswriter})
+  </insert>
+  
+  <!-- 
+  <select id="getDetail" parameterType="org.cg.domain.QuestionVO" resultType="org.cg.domain.QuestionVO">
+  select * from tbl_question where qno=${qno}
+  </select>
+  
+  <update id="qupdate" parameterType="org.cg.domain.QuestionVO">
+		UPDATE tbl_question SET title = '${title}', CONTENT='${content}',UPDATEDATE=sysdate WHERE qno ='${qno}'
+	</update>
+  
+  
+  
+  
+  
+  
+  <selectKey keyProperty="qno" resultType="int" order="AFTER">  
+	SELECT seq_question_qno.currval FROM dual
+	</selectKey>
+
+   -->
+
+<update id="qupdate" parameterType="org.cg.domain.CusQuestionVO">
+		UPDATE tbl_cusquestion SET custitle = '${custitle}', cusCONTENT='${cuscontent}',UPDATEDATE=sysdate WHERE cusqno ='${cusqno}'
+	</update>
+
+<delete id="qdelete" parameterType="org.cg.domain.CusQuestionVO">
+		delete from tbl_cusquestion where cusqno='${cusqno}'
+
+	</delete>
+	
+	
+	<insert id="reregi" parameterType="org.cg.domain.CusReplyVO" >
+	
+	INSERT INTO tbl_cusreply(rno,cusqno,recontent,rewriter,regdate,updatedate) VALUES(seq_cusreply_rno.NEXTVAL,#{cusqno}, #{recontent}, #{rewriter},SYSDATE, SYSDATE)
+	</insert>
+	
+	<select id="relist" parameterType="org.cg.domain.CusReplyVO" resultType="org.cg.domain.CusReplyVO">
+	select *from tbl_cusreply where cusqno='${cusqno}' order by regdate desc
+	</select>
+	
+	<update id="setcount" parameterType="Integer">
+	UPDATE TBL_CUSQUESTION set count=count+1 where cusqno=#{cusqno}
+	</update>
+	
+
+</mapper>
+  

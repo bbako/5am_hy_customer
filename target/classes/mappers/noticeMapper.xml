@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="org.cg.persistence.NoticeDAO" >
+  
+<insert id="addNotice" parameterType="org.cg.domain.NoticeVO">
+INSERT INTO tbl_customer_notice(tcno, WRITER, title, content) VALUES (seq_c_notice_tcno.nextval, 'ADMIN',#{title},#{content})
+</insert>
+
+
+<select id="noticeList" resultType="org.cg.domain.NoticeVO" >
+
+<![CDATA[
+select rno, tcno, writer, title, CONTENT, REGDATE, UPDATEDATE from (select ROWNUM rno, tcno, writer, title, CONTENT, REGDATE, UPDATEDATE from (SELECt tcno, writer, title, CONTENT, REGDATE, UPDATEDATE FROM tbl_customer_notice ORDER BY REGDATE DESC)) where rno>=(#{page}-1)*10 AND rno<#{page}*10
+
+]]>
+</select>
+
+<update id="modiNotice" parameterType="org.cg.domain.NoticeVO">
+update tbl_customer_notice set title=#{title}, content=#{content}, updatedate=sysdate where tcno= #{tcno}
+
+</update>
+
+<delete id="delNotice">
+delete  from tbl_customer_notice where tcno = #{tcno}
+</delete>
+
+</mapper>

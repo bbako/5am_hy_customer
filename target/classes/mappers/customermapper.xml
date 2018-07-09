@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.cg.persistence.CustomerDAO">
+<insert id="insert" parameterType="org.cg.domain.CustomerVO">
+insert into tbl_customer(cno,cname,cemail,cpw,caddrm,caddr) values(seq_customer_cno.nextval,#{cname},#{cemail},#{cpw},#{caddrm},#{caddr})
+</insert>
+
+<insert id="insertm" parameterType="org.cg.domain.MemberVO">
+insert into tbl_member(mid,mpw,mname,maddr) values(#{mid},#{mpw},#{mname},#{maddr})
+</insert>
+
+<select id="checkSessionKey" resultType="org.cg.domain.CustomerVO">
+		select * from tbl_customer where sessionKey = #{value} and sessionlimit > sysdate	
+</select>
+
+<update id="keepLogin">
+		update tbl_customer set sessionKey = #{sessionID}, sessionLimit = #{next} where cemail = #{cemail}
+	</update>
+	
+	<select id="login" resultType="org.cg.domain.CustomerVO" >
+		select * from tbl_customer where cemail = #{cemail}
+	</select>
+	
+	<select id="idcheck" resultType="org.cg.domain.CustomerVO" parameterType="org.cg.domain.CustomerVO">
+		select * from tbl_customer where cemail = #{cemail}
+	</select>
+	
+	<select id="findId" resultType="org.cg.domain.CustomerVO">
+		select * from tbl_customer where cname = #{cname}
+	</select>
+	
+	<select id="findPw" resultType="org.cg.domain.CustomerVO">
+		select * from tbl_customer where cemail = #{cemail} and cname = #{cname}
+	</select>
+	
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+
+<mapper namespace="org.cg.persistence.StoreDAO">
+
+<select id="getlist" parameterType="hashmap" resultType="org.cg.domain.StoreVO" >
+
+<![CDATA[
+ select * from(select ROWNUM rno, sid, sname, saddr, lng, lat, sphone,semail,regdate,updatedate,saddrm,scategory from(select * from tbl_store where lng>'${vo.lng}'-0.03 and lng<'${vo.lng}'+0.03 and lat<'${vo.lat}'+0.03 and lat>'${vo.lat}'-0.03 and (sname like '%'|| '${vo.sname}' ||'%')))where rno>(#{page}-1)*12 AND rno<=#{page}*12
+	]]>
+</select>
+
+
+<select id="getadlist" parameterType="Integer" resultType="org.cg.domain.StoreVO">
+
+
+<![CDATA[
+select * from (select ROWNUM rno, sid, sname, saddr, lng, lat, sphone,semail,regdate,updatedate,saddrm,scategory from (SELECt sid, sname, saddr, lng, lat, sphone,semail,regdate,updatedate,saddrm,scategory FROM tbl_store ORDER BY REGDATE DESC)) where rno>(#{page}-1)*12 AND rno<=#{page}*12
+]]>
+
+</select>
+
+
+<select id="categetadlist" parameterType="hashmap" resultType="org.cg.domain.StoreVO">
+
+<![CDATA[
+select * from(SELECT  ROWNUM rno, sid, sname, saddr, lng, lat, sphone,semail,regdate,updatedate,saddrm,scategory FROM(select* from (SELECt *FROM tbl_store ORDER BY REGDATE DESC)where scategory=#{scategory}))where  rno>(#{page}-1)*12 AND rno<=#{page}*12
+]]>
+
+</select>
+
+<select id="getDetail" parameterType="String" resultType="org.cg.domain.StoreVO">
+select sid, sname, saddr, sphone, semail, regdate, saddrm, scategory from tbl_store where sid= #{sid} 
+</select>
+	
+<select id="qRead" parameterType="org.cg.domain.Criteria" resultType="org.cg.domain.MQuestionVO">
+	select * from (SELECT rownum rnum, mqno, mid, sid, title, question,regdate FROM 
+	(SELECT * FROM TBL_MQUESTION where mqno>0 and sid=#{keyword}
+	order by mqno desc) 
+	<![CDATA[
+	TBL_MQUESTION where rownum <= #{pageNum}) 
+	where rnum >= #{skip}
+	]]>
+</select>	
+
+<select id="qDetail" parameterType="String" resultType="org.cg.domain.MQuestionVO">
+	SELECT * FROM tbl_Mquestion where mqno=#{mqno}
+</select>	
+
+<select id="aDetail" parameterType="String" resultType="org.cg.domain.MAnswerVO">
+	SELECT * FROM TBL_MANSWER where mqno=#{mqno}
+</select>	
+	
+<insert id="replyRegister" parameterType="org.cg.domain.MQuestionVO">
+	INSERT INTO TBL_MQUESTION(mqno, mid, sid, title, question) VALUES (seq_mquestion_mqno.nextval, #{mid}, #{sid}, #{title}, #{question})
+</insert>
+	
+<select id="getReplyTotal" parameterType="org.cg.domain.Criteria" resultType="int">
+	select count(*) from TBL_MQUESTION where sid = #{keyword}
+</select>
+	
+</mapper>
